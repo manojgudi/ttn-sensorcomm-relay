@@ -39,7 +39,8 @@ def relayDataFromLNS():
     url = "https://api.sensor.community/v1//push-sensor-data/"
     sensorCommunityResponse = requests.post(url, json = requestBody, headers = headers)
 
-    if sensorCommunityResponse.status_code == 200:
+    # If you get HTTP 2XX then
+    if int(sensorCommunityResponse.status_code/100) == 2:
         return make_response("Successfully sent data to sensor-community", 200)
 
     return make_response("Failed :" + sensorCommunityResponse.text, 501)
