@@ -17,5 +17,5 @@ $ echo "export SENSOR_ID="esp8266-MySensorID"
 Since the built-in debug server of flask is good enough for this simple application, we can simply deploy it as:
 
 ```sh
-$ nohup python3 webservice -http_port=12001 &
+$ nohup python3 webservice.py --http_port=12001 &
 ```

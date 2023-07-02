@@ -26,6 +26,7 @@ def get_data():
 @app.route('/lns/', methods=['POST'])
 def relayDataFromLNS():
     """
+    The route to recieve the data from TTN and relay it to the sensor.community
     """
     fromGW = request.get_json(force=True)
     print(fromGW)
@@ -36,10 +37,12 @@ def relayDataFromLNS():
     headers = {"X-Pin":"1", "X-Sensor" : sensorUID, "Content-Type" : "application/json"}
     requestBody = fromGW["uplink_message"]["decoded_payload"]
     url = "https://api.sensor.community/v1//push-sensor-data/"
-    x = requests.post(url, json = requestBody, headers = headers)
-    print("Sensor community post-return", x.text)
+    sensorCommunityResponse = requests.post(url, json = requestBody, headers = headers)
 
-    return make_response('OK', 200)
+    if sensorCommunityResponse.status_code == 200:
+        return make_response("Successfully sent data to sensor-community", 200)
+
+    return make_response("Failed :" + sensorCommunityResponse.text, 501)
 
 
 if __name__ == '__main__':
