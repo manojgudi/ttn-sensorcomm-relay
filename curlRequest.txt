@@ -1,0 +1,22 @@
+curl --header "Content-Type: application/json"   --request POST   --data '
+                {"api_key" : "DEMO_KEY",
+        "sensordatavalues": [
+          {
+            "value": "6.2",
+            "value_type": "P2"
+          },
+          {
+            "value": "12",
+            "value_type": "P1"
+          },
+          {
+            "value": "15.1",
+            "value_type": "temperature"
+          },
+          {
+            "value": "2.4",
+            "value_type": "humidity"
+          }
+        ],
+        "software_version": "test-imt-v0.1"}'  http://user.ackl.io:12001/module/
+

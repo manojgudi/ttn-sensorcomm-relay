@@ -5,7 +5,7 @@ import pprint
 import requests
 
 from flask import request
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, url_for
 
 app = Flask(__name__)
 
@@ -31,11 +31,8 @@ def relayDataFromModule():
     fromModule = request.get_json(force=True)
     print("Request Payload", fromModule)
 
-    if "data" in fromGW:
-        payload = base64.b64decode(fromGW["data"])
-
     # API Key check
-    if fromModule["api_key"] != apiKey:
+    if fromModule["api_key"] != apiKEY:
         return make_response("Failed : Invalid API Key "+fromModule["api_key"], 501)
 
     # Forward it to the /lns/ route internally
