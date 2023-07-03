@@ -11,22 +11,48 @@ app = Flask(__name__)
 
 # Get sensor value required for relaying data to sensor.community
 sensorUID = os.environ.get("SENSOR_UID")
+apiKEY    = os.environ.get("MODULE_API_KEY")
 if not sensorUID:
 	raise Exception("Please export your SENSOR_UID value from sensor.community!")
+
+if not apiKEY:
+	raise Exception("Please export your MODULE_API_KEY value which is written into the module!")
+
 
 @app.route('/')
 def hello():
     return "Hello, World!"
 
-@app.route('/api/data')
-def get_data():
-    data = {'name': 'John Doe', 'age': 30, 'city': 'New York'}
-    return jsonify(data)
+@app.route("/module/", methods=['POST'])
+def relayDataFromModule():
+    """
+    This route is to receive the data from the module directly and relay it to the sensor.community 
+    """
+    fromModule = request.get_json(force=True)
+    print("Request Payload", fromModule)
+
+    if "data" in fromGW:
+        payload = base64.b64decode(fromGW["data"])
+
+    # API Key check
+    if fromModule["api_key"] != apiKey:
+        return make_response("Failed : Invalid API Key "+fromModule["api_key"], 501)
+
+    # Forward it to the /lns/ route internally
+    jsonData = {"uplink_message" : {"decoded_payload" : { "sensordatavalues" : fromModule["sensordatavalues"], "software_version" : "test-imt-v0.2"  }}}
+    internalURL = request.host_url + url_for('relayDataFromLNS')
+    response = requests.post(internalURL, json=jsonData)
+
+    if response.status_code == 200:
+        return make_response("Successfully sent data to sensor-community", 200)
+
+    return make_response("Failed : Internal request "+ response.text, 501)
+\
 
 @app.route('/lns/', methods=['POST'])
 def relayDataFromLNS():
     """
-    The route to recieve the data from TTN and relay it to the sensor.community
+    The route is to recieve the data from TTN and relay it to the sensor.community
 
     # NOTE
     Ideally we should be sending 1 request per sensor module, but there's a bug
@@ -34,7 +60,7 @@ def relayDataFromLNS():
     The dashboard DOESNT distinguish SDS & BME as two different sensors
     """
     fromGW = request.get_json(force=True)
-    print(fromGW)
+    print("Request Payload", fromGW)
     if "data" in fromGW:
         payload = base64.b64decode(fromGW["data"])
 
